@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analizador de Texto</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+  <style>
+       body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container h1 {
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    label {
+      margin-top: 10px;
+    }
+    input {
+      margin-bottom: 10px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .buttons button {
+      margin: 0 5px;
+    }
+    .footer {
+      padding-top: 10px;
+      padding-bottom: 6px;
+      background: #1a252f;
+      color: white;
+      text-align: center;
+    }
+    .container h1 {
+      background: #1a252f;
+      color: white;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .row label {
+      width: 158px;
+    }
+    .row input {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Analizador de Texto</h1>
+    <textarea rows="10" id="texto"></textarea>
+    <div class="buttons">
+      <button onclick="analizar()">Analizar</button>
+      <button onclick="limpiar()">Limpiar</button>
+    </div>
+    <div class="row">
+      <label for="palabras">Total de palabras</label>
+      <input type="text" id="palabras" readonly style="width:100px;">
+      <label for="longitud">Longitud promedio</label>
+      <input type="text" id="longitud" readonly style="width:100px;">
+    </div>
+    <div class="row">
+      <label for="oraciones">Total de oraciones</label>
+      <input type="text" id="oraciones" readonly style="width:100px;">
+      <label for="palabraLarga">Palabra más larga</label>
+      <input type="text" id="palabraLarga" readonly style="width:150px;">
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="container text-center">
+        <h6>Copyright&copy; gurbina sitio web 2024</h6>
+    </div>
+  </footer>
+  <script type="text/javascript">
+    function obtenerPalabras(texto) {
+    //si no hay texto, en el cual eliminar espacios en blanco
+      //https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/String/trim
+      if (!texto.trim()) {
+        return []; // retorna un array vacío
+      }
+      //Elimina los espacios en blanco al principio y al final del texto.
+      //se utiliza una expresion regular para buscar espacios en blanco
+      return texto.trim().split(/\s+/);
+    }
+
+    function contarOraciones(texto) {
+      //se crea una expresion regular para buscar por (.)
+      const oracionPattern = /\./;
+      //divide el texto con el split, usando oracionPattern como delimitador
+      //https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+      //.filter filtra el array resultante, para eliminar oraciones vacias
+      //.length calcula el total de oraciones
+      return texto.split(oracionPattern).filter(word => word.trim().length > 0).length;
+    }
+
+    function obtenerPalabraMasLarga(palabras) {
+      //reduce() de JavaScript se usa para iterar sobre la matriz de palabras y encontrar la palabra más larga.
+      //la función compara la longitud de la palabra actual (palabra.replace(/[.,!?]/g, '').length) con la longitud de la palabra más larga acumulada hasta el momento (max.length).
+      //se utiliza el método replace() para eliminar la puntuación ([.,!?]) de la palabra antes de calcular su longitud.
+      return palabras.reduce((max, palabra) => palabra.replace(/[.,!?]/g, '').length > max.length ? palabra : max, '');
+    }
+
+    function analizarTexto(texto) {
+      const palabras = obtenerPalabras(texto);
+      const palabrasTotales = palabras.length;
+      const longitudTotal = palabras.reduce((acc, palabra) => acc + palabra.replace(/[.,!?]/g, '').length, 0);
+      const oracionesTotales = contarOraciones(texto);
+      const palabraMasLarga = obtenerPalabraMasLarga(palabras);
+      const longitudMedia = palabrasTotales ? longitudTotal / palabrasTotales : 0;
+
+      return {
+        palabrasTotales,
+        longitudMedia,
+        oracionesTotales,
+        palabraMasLarga
+      };
+    }
+
+    function analizar() {
+      const texto = document.getElementById("texto").value;
+      const informacion = analizarTexto(texto);
+
+      document.getElementById("palabras").value = informacion.palabrasTotales;
+      document.getElementById("longitud").value = informacion.longitudMedia.toFixed(2);
+      document.getElementById("oraciones").value = informacion.oracionesTotales;
+      document.getElementById("palabraLarga").value = informacion.palabraMasLarga;
+    }
+
+    function limpiar() {
+      document.getElementById("texto").value = "";
+      document.getElementById("palabras").value = "";
+      document.getElementById("longitud").value = "";
+      document.getElementById("oraciones").value = "";
+      document.getElementById("palabraLarga").value = "";
+    }
+  </script>
+</body>
+</html>
